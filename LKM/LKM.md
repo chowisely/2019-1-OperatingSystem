@@ -68,15 +68,19 @@
 >
 >   LKM Rootkit은 Rootkit을 커널 모듈로 만들어 커널 영역에 올리는 것이다. 이 모듈이 커널에 올라가게 되면, 정상적인 system call을 가로채서 공격자가 만든 system call을 실행하도록 한다. 더 자세히 말하자면, 'sys_call_table'에 원래 system call의 주소를 공격자가 만든 system call의 주소로 바꾸어서 해당 routine이 실행된다.
 >
-
-  int my_write () {
-    ...
-   }
-  int init_module () {
-    orig_sys = sys_call_table[__NR_write];
-    sys_call_table[__NR_write] = my_write;
-  }
-  
+>   ​	int my_write () {
+>
+>   ​		...
+>
+>   ​	}
+>
+>   ​	int init_module () {
+>
+>   ​		orig_sys = sys_call_table[__NR_write];
+>
+>   ​		sys_call_table[__NR_write] = my_write;
+>
+>   ​	}
 >
 >   이러한 점에서 LKM이 커널을 수정하는 데 편리하지만 모듈을 load할 때 확장된 권한을 요구함으로써 공격자들에게 남용될 수 있다.
 >
