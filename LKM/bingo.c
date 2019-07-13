@@ -69,7 +69,6 @@ int main() {
 }
 
 
-
 void listCommand() {
 	printf("\n\n---------------------------------- C o m m a n d ----------------------------------\n");
 	printf("- monitor 'USERNAME' : Log the names files that a user has accessed.\n");
