@@ -122,7 +122,7 @@ void feedback_handler(int sig) {
 
 	/* according to a received message */
 	if(strcmp(data, "not yet") == 0) {
-		printf("---still being evaluated---\n");
+		printf("Still Being Evaluated...\n");
 	}
 	else {
 		if(strcmp(data, "VF") == 0)
