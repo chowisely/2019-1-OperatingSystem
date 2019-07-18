@@ -48,7 +48,7 @@ int lNum = 0;
 int findThread(pthread_t tid) {
 	for(int i = 0; i < 10; i++) {
 		if(pthread_equal(tid, tinfo[i].tid) != 0)
-		return i;
+			return i;
 	}
 	return -1;
 }
@@ -56,7 +56,7 @@ int findThread(pthread_t tid) {
 int findLock(pthread_mutex_t* mutex) {
 	for(int i = 0; i < 100; i++) {
 		if(lock[i].addr == mutex)
-		return i;
+			return i;
 	}
 	return -1;
 }
@@ -64,7 +64,7 @@ int findLock(pthread_mutex_t* mutex) {
 int findHoldIdx(int tIdx, pthread_mutex_t* m) {
 	for(int i = 0; i < tinfo[tIdx].holdNum; i++) {
 		if(tinfo[tIdx].hold[i] == m)
-		return i;
+			return i;
 	}
 	return -1;
 }
@@ -72,20 +72,20 @@ int findHoldIdx(int tIdx, pthread_mutex_t* m) {
 int findAcqIdx(int tIdx, pthread_mutex_t* m) {
 	for(int i = 0; i < tinfo[tIdx].acqNum; i++) {
 		if(tinfo[tIdx].acquire[i] == m)
-		return i;
+			return i;
 	}
 	return -1;
 }
 
 void rearrangeHold(int tIdx, int holdIdx) {
 	for(int i = holdIdx + 1; i < tinfo[tIdx].holdNum; i++)
-	tinfo[tIdx].hold[i - 1] = tinfo[tIdx].hold[i];
+		tinfo[tIdx].hold[i - 1] = tinfo[tIdx].hold[i];
 	tinfo[tIdx].holdNum--;
 }
 
 void rearrangeAcq(int tIdx, int acqIdx) {
 	for(int i = acqIdx + 1; i < tinfo[tIdx].acqNum; i++)
-	tinfo[tIdx].acquire[i - 1] = tinfo[tIdx].acquire[i];
+		tinfo[tIdx].acquire[i - 1] = tinfo[tIdx].acquire[i];
 	tinfo[tIdx].acqNum--;
 }
 
