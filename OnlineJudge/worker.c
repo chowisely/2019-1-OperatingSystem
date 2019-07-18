@@ -32,8 +32,6 @@ void buildup(char *filepath, char *filename, int *p1, int *p2) {
 
   if(system(command) != 0) // if a shell command is failed
     exit(0);
-
-  printf("Executing...\n");
   execl(filename, filename, NULL); // otherwise, execute a binary file
 }
 
@@ -48,7 +46,6 @@ void child_worker(int new_socket) {
   int s, i;
 
   int pid = getpid();
-
   FILE *fp;
   char filepath[30];
   char filename[30];
@@ -70,17 +67,17 @@ void child_worker(int new_socket) {
   /* receive data */
   data = 0x0;
   len = 0;
-  while((s = recv(new_socket, buf, 1023, 0)) > 0 ) {
-    buf[s] = 0x0 ;
+  while((s = recv(new_socket, buf, sizeof(buf) - 1, 0)) > 0) {
+    buf[s] = 0x0;
     if (data == 0x0) {
-      data = strdup(buf) ;
-      len = s ;
+      data = strdup(buf);
+      len = s;
     }
     else {
-      data = realloc(data, len + s + 1) ;
-      strncpy(data + len, buf, s) ;
-      data[len + s] = 0x0 ;
-      len += s ;
+      data = realloc(data, len + s + 1);
+      strncpy(data + len, buf, s);
+      data[len + s] = 0x0;
+      len += s;
     }
   }
   shutdown(new_socket, SHUT_RD);
@@ -125,17 +122,14 @@ void child_worker(int new_socket) {
 
     close(p1[WRITE_END]);
     close(p2[READ_END]);
-
     free(fbuf);
     free(input);
-
     _exit(0);
   }
 
   else { // parent process
     close(p1[WRITE_END]); // it won't use p1 for writing output
     close(p2[READ_END]); // it won't use p2 for reading input
-
     write(p2[WRITE_END], input, sizeof(int) * 8192); // write input to the pipe
                                                     // the default pipe capacity is 65,536 byte
                                                     // in case of changing the size, use fcntl()
@@ -149,8 +143,10 @@ void child_worker(int new_socket) {
       data = "BF";
     }
     else {
-      read(p1[READ_END], data, 100);
+      memset(buf, 0, sizeof(buf));
+      read(p1[READ_END], buf, sizeof(buf));
       close(p1[READ_END]);
+      data = buf;
 
       if(child == -1) {
         printf("Timeout!\n");
@@ -199,6 +195,7 @@ int main(int argc, char *argv[]) {
       case 'p':
       portNum = atoi(optarg);
       break;
+
       case '?':
       printf("Unknown flag.\n");
       exit(0);
@@ -207,7 +204,7 @@ int main(int argc, char *argv[]) {
 
   listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (listen_fd == 0)  {
+  if (listen_fd == 0) {
     perror("socket failed : ");
     exit(EXIT_FAILURE);
   }
@@ -228,10 +225,10 @@ int main(int argc, char *argv[]) {
     }
 
     /* Send it to another port because 'instagrapd' only has to listen to requests.
-		 * One socket is needed for per session.
-		 * A server needs to create a new socket for each remote endpoint(client)
-		 * as long as every socket created before is being used.
-		 */
+     * One socket is needed for per session.
+     * A server needs to create a new socket for each remote endpoint(client)
+     * as long as every socket created before is being used.
+     */
     new_socket = accept(listen_fd, (struct sockaddr *) &address, (socklen_t*)&addrlen);
 
     if(new_socket < 0) {
@@ -241,7 +238,6 @@ int main(int argc, char *argv[]) {
 
     if(fork() == 0)
       child_worker(new_socket);
-
     else {
       close(new_socket);
       waitpid(-1, NULL, WNOHANG);

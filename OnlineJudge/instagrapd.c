@@ -52,7 +52,6 @@ void *sendToWorker(void* arg) {
 	char *data = 0x0;
 	char *message;
 	char buf[100];
-	char tmp[100] = "0";
 	char *in, *out;
 
 	FILE *fp;
@@ -66,7 +65,6 @@ void *sendToWorker(void* arg) {
 
 	if(stu[idx].isFailed == 1 || stu[idx].done == 10)
 		pthread_exit(0);
-
 
 	for(i = 0; i < 10; i++) {
 		new_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -118,18 +116,18 @@ void *sendToWorker(void* arg) {
 		/* receive data */
 		data = 0x0;
 		len = 0;
-		while((s = recv(new_socket, buf, 99, 0)) > 0) {
-			buf[s] = 0x0 ;
-	    if (data == 0x0) {
-	     data = strdup(buf) ;
-	     len = s ;
-	    }
-	    else {
-	     data = realloc(data, len + s + 1) ;
-	     strncpy(data + len, buf, s) ;
-	     data[len + s] = 0x0 ;
-	     len += s ;
-	    }
+		while((s = recv(new_socket, buf, sizeof(buf) - 1, 0)) > 0) {
+			buf[s] = 0x0;
+			if (data == 0x0) {
+				data = strdup(buf);
+				len = s;
+			}
+			else {
+				data = realloc(data, len + s + 1);
+				strncpy(data + len, buf, s);
+				data[len + s] = 0x0;
+				len += s;
+			}
 		}
 		close(new_socket);
 
@@ -147,9 +145,6 @@ void *sendToWorker(void* arg) {
 		s = strlen(out) - 1;
 		while(out[s--] != '\n' && s > 0);
 		out[s] = '\0';
-		printf("%s\n", out);
-		//strncpy(tmp, out, s);
-		//tmp[s] = '\0';
 
 		if(strcmp(data, "BF") == 0) {
 			stu[idx].isFailed = 1;
@@ -160,7 +155,7 @@ void *sendToWorker(void* arg) {
 			break;
 		}
 		else {
-			if(strcmp(tmp, data) == 0)
+			if(strcmp(out, data) == 0)
 				stu[idx].correct++;
 			stu[idx].done++;
 
@@ -186,7 +181,7 @@ void *child_thread(void *arg) {
 	pthread_t thread;
 
 	FILE *fp;
-	char tmp[1000]; // data received from a client
+	char buf[1024]; // data received from a client
 	char id[20]; // for student's id
 	char pwd[20]; // for student's password
 	char *fbuf; // for source code file
@@ -196,15 +191,15 @@ void *child_thread(void *arg) {
 	new_socket = (int)(int*)arg;
 
 	/* first, receive a stu_id, password and source code combined into one */
-	while((s = recv(new_socket, tmp, 1000, 0)) > 0 ) {
-		tmp[s] = 0x0 ;
+	while((s = recv(new_socket, buf, sizeof(buf) - 1, 0)) > 0 ) {
+		buf[s] = 0x0 ;
 		if (data == 0x0) {
-			data = strdup(tmp);
+			data = strdup(buf);
 			len = s;
 		}
 		else {
 			data = realloc(data, len + s + 1) ;
-			strncpy(data + len, tmp, s) ;
+			strncpy(data + len, buf, s) ;
 			data[len + s] = 0x0 ;
 			len += s ;
 		}
@@ -212,8 +207,10 @@ void *child_thread(void *arg) {
 
 	shutdown(new_socket, SHUT_RD);
 
-	strncpy(id, tmp, 8); // extract a stu_id
-	strncpy(pwd, tmp + 9, 8); // extract a password
+	memset(id, 0, sizeof(id));
+	memset(pwd, 0, sizeof(pwd));
+	strncpy(id, buf, 8); // extract a stu_id
+	strncpy(pwd, buf + 9, 8); // extract a password
 
 	/* check if this student info is already stored */
 	for(idx = 1; idx < MAX; idx++) {
@@ -232,7 +229,7 @@ void *child_thread(void *arg) {
 			stu[idx].done = 0;
 			stu[idx].isFailed = 0;
 			stu[idx].isTimeout = 0;
-			fbuf = tmp + 18; // extract a source code
+			fbuf = buf + 18; // extract a source code
 			stu[idx].target = (char*)malloc(sizeof(char) * strlen(fbuf));
 			strcpy(stu[idx].target, fbuf);
 			errcode = -1;
@@ -331,7 +328,7 @@ int main(int argc, char *argv[]) {
 
 
 	while (1) {
-		if(listen(listen_fd, 100 /* size of a waiting queue */) < 0) {
+		if(listen(listen_fd, 100 /* the size of waiting queue*/) < 0) {
 			perror("listen failed : ");
 			exit(EXIT_FAILURE);
 		}
