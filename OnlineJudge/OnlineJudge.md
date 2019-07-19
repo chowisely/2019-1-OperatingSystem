@@ -62,15 +62,15 @@
 > >
 > > **./submitter -n <IP>:<Port> -u <ID> -k <PW> <File>**
 > >
-> > > <IP> IP address of *instagrapd*
+> > > **IP** IP address of *instagrapd*
 > > >
-> > > <Port> port number of *instagrapd*
+> > > **Port** port number of *instagrapd*
 > > >
-> > > <ID> student ID as a 8 digit number
+> > > **ID** student ID as a 8 digit number
 > > >
-> > > <PW> password as a 8 digit alphanumeric string
+> > > **PW** password as a 8 digit alphanumeric string
 > > >
-> > > <File> a target C source code file
+> > > **File** a target C source code file
 >
 > > #### Behaviors
 > >
@@ -92,13 +92,13 @@
 > >
 > > **./instagrapd -p <Port> -w <IP>:<WPort> <Dir>**
 > >
-> > > <Port> port for listening of *instagrapd*
+> > > **Port** port for listening of *instagrapd*
 > > >
-> > > <IP> IP address of *worker*
+> > > **IP** IP address of *worker*
 > > >
-> > > <WPort> port of *worker*
+> > > **WPort** port of *worker*
 > > >
-> > > <Dir> a path of testcase directory
+> > > **Dir** a path of testcase directory
 >
 > > #### Testcase
 > >
@@ -130,7 +130,7 @@
 > >
 > > **./worker -p <Port>**
 > >
-> > > <<Port>> port for listening
+> > > **Port** port for listening
 >
 > > #### Behaviors
 > >
