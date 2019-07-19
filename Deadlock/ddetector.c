@@ -45,7 +45,7 @@ int tNum = 0;
 int lNum = 0;
 
 
-int findThread(pthread_t tid) {
+int findThread(pthread_t tid) { // find which index of Thrinfo array has the specific thread info
 	for(int i = 0; i < 10; i++) {
 		if(pthread_equal(tid, tinfo[i].tid) != 0)
 			return i;
@@ -53,7 +53,7 @@ int findThread(pthread_t tid) {
 	return -1;
 }
 
-int findLock(pthread_mutex_t* mutex) {
+int findLock(pthread_mutex_t* mutex) { // find which index of Lock array has the specific lock info
 	for(int i = 0; i < 100; i++) {
 		if(lock[i].addr == mutex)
 			return i;
@@ -61,7 +61,7 @@ int findLock(pthread_mutex_t* mutex) {
 	return -1;
 }
 
-int findHoldIdx(int tIdx, pthread_mutex_t* m) {
+int findHoldIdx(int tIdx, pthread_mutex_t* m) { // find which index of hold array has the specific mutex
 	for(int i = 0; i < tinfo[tIdx].holdNum; i++) {
 		if(tinfo[tIdx].hold[i] == m)
 			return i;
@@ -69,7 +69,7 @@ int findHoldIdx(int tIdx, pthread_mutex_t* m) {
 	return -1;
 }
 
-int findAcqIdx(int tIdx, pthread_mutex_t* m) {
+int findAcqIdx(int tIdx, pthread_mutex_t* m) { // find which index of acquire array has the specific mutex
 	for(int i = 0; i < tinfo[tIdx].acqNum; i++) {
 		if(tinfo[tIdx].acquire[i] == m)
 			return i;
@@ -186,6 +186,7 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex) {
 	int holdIdx = findHoldIdx(tIdx, mutex);
 	int acqIdx = findAcqIdx(tIdx, mutex);
 
+	/* dynamic loading at runtime */
 	unlockp = dlsym(RTLD_NEXT, "pthread_mutex_unlock");
 	if((error = dlerror()) != 0x0)
 		exit(1);
@@ -220,7 +221,7 @@ int isCyclic() {
 			if(recursive(i))
 				return TRUE;
 
-			/* re-initialization every time setting a lock as a start node */
+			/* re-initialization every time it sets a lock as a start node */
 			for(j = 0; j < tNum; j++)
 				tinfo[j].visited = FALSE;
 		}
